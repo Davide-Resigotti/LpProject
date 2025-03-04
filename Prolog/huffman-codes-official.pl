@@ -146,8 +146,7 @@ print_huffman_tree(node(Left, Right, W), Indent) :-
 
 
 
-
-    % !!!!!!!!!!!!!!!!! SISTEMARE COME VIENE LETTO INPUT !!!!!!!!!!!!!!!!!!
+% !!!!!!!!!!!!!!!!! SISTEMARE COME VIENE LETTO INPUT !!!!!!!!!!!!!!!!!!
 
 
 

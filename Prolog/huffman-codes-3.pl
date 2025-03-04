@@ -31,7 +31,7 @@ merge_nodes(Node1, Node2, node(Node1, Node2, WSum)) :-
     node_weight(Node1, W1),
     node_weight(Node2, W2),
     WSum is W1 + W2,
-    W1 =< W2. %% prova <------------------------------------------------------------
+    W1 =< W2.
 
 % Ritorna il peso di un nodo (foglia o nodo interno).
 node_weight(leaf(_, W), W).
@@ -99,7 +99,7 @@ decode_symbol([1 | RestBits], node(_, Right, _), Symbol, RemainingBits) :-
 % -----------------------------------------------------------------------------------------------------------------------
 
 % 5
-% hucodec_encode_file(InputFilename, HuffmanTree, OutputFilename) :-
+% hucodec_encode_file(Filename, HuffmanTree, Bits) :-
 hucodec_encode_file(InputFilename, HuffmanTree, OutputFilename) :-
     % Leggi i simboli dal file di input
     hucodec_read_symbols(InputFilename, Symbols),
@@ -108,11 +108,28 @@ hucodec_encode_file(InputFilename, HuffmanTree, OutputFilename) :-
     % Scrivi i bit codificati nel file di output
     hucodec_write_bits(OutputFilename, Bits).
 
+% **Legge un file e lo trasforma in una lista di simboli (caratteri)**
 hucodec_read_symbols(Filename, Symbols) :-
     open(Filename, read, Stream),
     read_string(Stream, _, String),
-    string_chars(String, Symbols),
-    close(Stream).
+    close(Stream),
+    string_to_symbols(String, Symbols).
+
+% **Converte una stringa in una lista di simboli, riconoscendo anche le liste**
+string_to_symbols(String, Symbols) :-
+    split_string(String, "\n", "", Lines),
+    maplist(line_to_symbols, Lines, SymbolsLists),
+    flatten(SymbolsLists, Symbols).
+
+% **Converte una singola linea in una lista di simboli**
+line_to_symbols(Line, Symbols) :-
+    (   sub_string(Line, 0, 1, _, "["),
+        sub_string(Line, _, 1, 0, "]")
+    ->  sub_string(Line, 1, _, 1, ListString),
+        split_string(ListString, ",", " ", ListItems),
+        maplist(atom_string, Symbols, ListItems)
+    ;   string_chars(Line, Symbols)
+    ).
 
 hucodec_write_bits(Filename, Bits) :-
     open(Filename, write, Stream),
@@ -124,32 +141,6 @@ write_bits(Stream, [Bit | Rest]) :-
     write(Stream, Bit),
     write(Stream, ' '),
     write_bits(Stream, Rest).
-
-hucodec_read_bits(Filename, Bits) :-
-    open(Filename, read, Stream),
-    read_string(Stream, _, String),
-    split_string(String, " ", "", BitStrings),
-    maplist(atom_number, BitStrings, Bits),
-    close(Stream).
-
-% hucodec_decode_file(InputFilename, HuffmanTree, OutputFilename) :-
-hucodec_decode_file(InputFilename, HuffmanTree, OutputFilename) :-
-    % Leggi i bit codificati dal file di input
-    hucodec_read_bits(InputFilename, Bits),
-    % Decodifica i bit utilizzando l'albero di Huffman
-    hucodec_decode(Bits, HuffmanTree, Symbols),
-    % Scrivi i simboli decodificati nel file di output
-    hucodec_write_symbols(OutputFilename, Symbols).
-
-hucodec_write_symbols(Filename, Symbols) :-
-    open(Filename, write, Stream),
-    write_symbols(Stream, Symbols),
-    close(Stream).
-
-write_symbols(_, []) :- !.
-write_symbols(Stream, [Symbol | Rest]) :-
-    write(Stream, Symbol),
-    write_symbols(Stream, Rest).
 
 % ------------------------------------------------------------------------------------------------------------
 
@@ -165,6 +156,11 @@ print_huffman_tree(node(Left, Right, W), Indent) :-
     print_huffman_tree(Left, NewIndent),
     print_huffman_tree(Right, NewIndent).
 
-
-
 % !!!!!!!!!!!!!!!!! SISTEMARE COME VIENE LETTO INPUT !!!!!!!!!!!!!!!!!!
+
+
+
+
+
+
+
