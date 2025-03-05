@@ -90,6 +90,7 @@ decode_bits(Bits, HuffmanTree, [Symbol | RestMessage]) :-
     decode_symbol(Bits, HuffmanTree, Symbol, RestBits),
     decode_bits(RestBits, HuffmanTree, RestMessage).
 
+decode_symbol([], _, _, _) :- fail.
 decode_symbol(Bits, leaf(S, _), S, Bits).
 decode_symbol([0 | RestBits], node(Left, _, _), Symbol, RemainingBits) :-
     decode_symbol(RestBits, Left, Symbol, RemainingBits).
@@ -132,14 +133,14 @@ hucodec_read_bits(Filename, Bits) :-
     maplist(atom_number, BitStrings, Bits),
     close(Stream).
 
+% % hucodec_decode_file(InputFilename, HuffmanTree, OutputFilename) :-
 % hucodec_decode_file(InputFilename, HuffmanTree, OutputFilename) :-
-hucodec_decode_file(InputFilename, HuffmanTree, OutputFilename) :-
-    % Leggi i bit codificati dal file di input
-    hucodec_read_bits(InputFilename, Bits),
-    % Decodifica i bit utilizzando l'albero di Huffman
-    hucodec_decode(Bits, HuffmanTree, Symbols),
-    % Scrivi i simboli decodificati nel file di output
-    hucodec_write_symbols(OutputFilename, Symbols).
+%     % Leggi i bit codificati dal file di input
+%     hucodec_read_bits(InputFilename, Bits),
+%     % Decodifica i bit utilizzando l'albero di Huffman
+%     hucodec_decode(Bits, HuffmanTree, Symbols),
+%     % Scrivi i simboli decodificati nel file di output
+%     hucodec_write_symbols(OutputFilename, Symbols).
 
 hucodec_write_symbols(Filename, Symbols) :-
     open(Filename, write, Stream),
@@ -165,6 +166,3 @@ print_huffman_tree(node(Left, Right, W), Indent) :-
     print_huffman_tree(Left, NewIndent),
     print_huffman_tree(Right, NewIndent).
 
-
-
-% !!!!!!!!!!!!!!!!! SISTEMARE COME VIENE LETTO INPUT !!!!!!!!!!!!!!!!!!
