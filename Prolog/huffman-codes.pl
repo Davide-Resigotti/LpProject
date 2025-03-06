@@ -1,5 +1,8 @@
 % 1    -------------------------------------------------------------------------------generate_huffman_tree-------------------------------
 % Predicato principale: Genera l'albero di Huffman da una lista di sw(Simbolo, Peso).
+hucodec_generate_huffman_tree([], _) :-
+    writeln('Errore: la lista di simboli e pesi è vuota.'),
+    fail.
 hucodec_generate_huffman_tree(SymbolsWeights, HuffmanTree) :-
     % Step 1: Crea i nodi iniziali (foglie) e ordina per peso.
     create_initial_nodes(SymbolsWeights, Nodes),
@@ -31,7 +34,7 @@ merge_nodes(Node1, Node2, node(Node1, Node2, WSum)) :-
     node_weight(Node1, W1),
     node_weight(Node2, W2),
     WSum is W1 + W2,
-    W1 =< W2. %% prova <------------------------------------------------------------
+    W1 =< W2.
 
 % Ritorna il peso di un nodo (foglia o nodo interno).
 node_weight(leaf(_, W), W).
@@ -49,8 +52,8 @@ insert_sorted(Node, [H | T], [Node, H | T]) :-
     W1 =< W2, !.
 insert_sorted(Node, [H | T], [H | Rest]) :-
     insert_sorted(Node, T, Rest).
-% --------------------------------------------------------------------------------------------------------------------
 
+% --------------------------------------------------------------------------------------------------------------------
 
 % 2 
 hucodec_generate_symbol_bits_table(HuffmanTree, SymbolBitsTable) :-
@@ -65,7 +68,6 @@ generate_symbol_bits_table(node(Left, Right, _), Bits, SymbolBitsTable) :-
     append(LeftTable, RightTable, SymbolBitsTable).
 
 % ----------------------------------------------------------------------------------------------------------------------------
-
 
 % 3
 hucodec_encode(Symbols, HuffmanTree, Bits) :-
@@ -100,47 +102,41 @@ decode_symbol([1 | RestBits], node(_, Right, _), Symbol, RemainingBits) :-
 % -----------------------------------------------------------------------------------------------------------------------
 
 % 5
-% hucodec_encode_file(InputFilename, HuffmanTree, OutputFilename) :-
 hucodec_encode_file(InputFilename, HuffmanTree, OutputFilename) :-
-    % Leggi i simboli dal file di input
     hucodec_read_symbols(InputFilename, Symbols),
-    % Codifica i simboli utilizzando l'albero di Huffman
-    hucodec_encode(Symbols, HuffmanTree, Bits),
-    % Scrivi i bit codificati nel file di output
-    hucodec_write_bits(OutputFilename, Bits).
+    (   Symbols = []
+    ->  writeln('Errore: il file di input è vuoto.'),
+        fail
+    ;   hucodec_encode(Symbols, HuffmanTree, Bits),
+        hucodec_write_bits(OutputFilename, Bits)
+    ).
 
 hucodec_read_symbols(Filename, Symbols) :-
     open(Filename, read, Stream),
     read_string(Stream, _, String),
-    string_chars(String, Symbols),
-    close(Stream).
+    close(Stream),
+    (   String = ""
+    ->  Symbols = []
+    ;   string_chars(String, Symbols)
+    ).
 
 hucodec_write_bits(Filename, Bits) :-
-    open(Filename, write, Stream),
-    write_bits(Stream, Bits),
-    close(Stream).
+open(Filename, write, Stream),
+write_bits(Stream, Bits),
+close(Stream).
 
 write_bits(_, []) :- !.
 write_bits(Stream, [Bit | Rest]) :-
-    write(Stream, Bit),
-    write(Stream, ' '),
-    write_bits(Stream, Rest).
+write(Stream, Bit),
+write(Stream, ' '),
+write_bits(Stream, Rest).
 
 hucodec_read_bits(Filename, Bits) :-
     open(Filename, read, Stream),
     read_string(Stream, _, String),
-    split_string(String, " ", "", BitStrings),
+    split_string(String, ",", "", BitStrings),
     maplist(atom_number, BitStrings, Bits),
     close(Stream).
-
-% % hucodec_decode_file(InputFilename, HuffmanTree, OutputFilename) :-
-% hucodec_decode_file(InputFilename, HuffmanTree, OutputFilename) :-
-%     % Leggi i bit codificati dal file di input
-%     hucodec_read_bits(InputFilename, Bits),
-%     % Decodifica i bit utilizzando l'albero di Huffman
-%     hucodec_decode(Bits, HuffmanTree, Symbols),
-%     % Scrivi i simboli decodificati nel file di output
-%     hucodec_write_symbols(OutputFilename, Symbols).
 
 hucodec_write_symbols(Filename, Symbols) :-
     open(Filename, write, Stream),
@@ -151,6 +147,29 @@ write_symbols(_, []) :- !.
 write_symbols(Stream, [Symbol | Rest]) :-
     write(Stream, Symbol),
     write_symbols(Stream, Rest).
+
+
+% Predicato per aggiungere le virgole al contenuto di encoded.txt
+hucodec_add_commas_to_encoded_file :-
+    hucodec_read_bits('encoded.txt', Bits),
+    open('encoded_with_commas.txt', write, Stream),
+    write_bits_with_commas(Stream, Bits),
+    close(Stream).
+
+write_bits_with_commas(_, []) :- !.
+write_bits_with_commas(Stream, [Bit]) :-
+    write(Stream, Bit).
+write_bits_with_commas(Stream, [Bit | Rest]) :-
+    write(Stream, Bit),
+    write(Stream, ', '),
+    write_bits_with_commas(Stream, Rest).
+
+
+% Predicato per decodificare i bit da un file
+hucodec_decode_file(HuffmanTree, Message) :-
+    hucodec_read_bits('encoded_with_commas.txt', Bits),
+    hucodec_decode(Bits, HuffmanTree, Message).
+
 
 % ------------------------------------------------------------------------------------------------------------
 
@@ -165,4 +184,5 @@ print_huffman_tree(node(Left, Right, W), Indent) :-
     NewIndent is Indent + 4,
     print_huffman_tree(Left, NewIndent),
     print_huffman_tree(Right, NewIndent).
+
 
