@@ -134,7 +134,7 @@ write_bits(Stream, Rest).
 hucodec_read_bits(Filename, Bits) :-
     open(Filename, read, Stream),
     read_string(Stream, _, String),
-    split_string(String, ",", "", BitStrings),
+    split_string(String, " ", "", BitStrings),
     maplist(atom_number, BitStrings, Bits),
     close(Stream).
 
@@ -165,10 +165,6 @@ write_bits_with_commas(Stream, [Bit | Rest]) :-
     write_bits_with_commas(Stream, Rest).
 
 
-% Predicato per decodificare i bit da un file
-hucodec_decode_file(HuffmanTree, Message) :-
-    hucodec_read_bits('encoded_with_commas.txt', Bits),
-    hucodec_decode(Bits, HuffmanTree, Message).
 
 
 % ------------------------------------------------------------------------------------------------------------
