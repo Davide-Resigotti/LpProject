@@ -94,8 +94,11 @@ dell'albero di Huffman. Utile per debugging e visualizzazione.
 ; Output: (stampa a terminale la struttura dell'albero)
 
 ESECUZIONE DEI TEST
+
 eseguire il load del file huffman-codes-test.lisp, che caricherà
-automaticamente il file huffman-codes.lisp
+automaticamente il file huffman-codes.lisp 
+per inserire il messaggio da codificare, modificare il file 
+test.txt con il messaggio desiderato
 
 FUNZIONI AUSILIARIE
 
