@@ -1,4 +1,4 @@
-(load "huffman-codes-1.lisp")
+(load "huffman-codes.lisp")
 
 (in-package :huffman-codes)
 
