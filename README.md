@@ -1,2 +1,0 @@
-# LpProject
-Project Exam Lp

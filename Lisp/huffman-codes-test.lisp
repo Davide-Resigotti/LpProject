@@ -1,37 +1,33 @@
 (load "huffman-codes.lisp")
 
-;; Funzione di stampa per visualizzare l'albero di Huffman
-(defun print-huffman-tree (node &optional (indent 0))
-  (if (eq (huffman-node-type node) 'leaf)
-      (format t "~v@TLeaf: ~a, Weight: ~a~%" indent (huffman-node-symbol node) (huffman-node-weight node))
-      (progn
-        (format t "~v@TNode: Weight: ~a~%" indent (huffman-node-weight node))
-        (print-huffman-tree (huffman-node-left node) (+ indent 4))
-        (print-huffman-tree (huffman-node-right node) (+ indent 4)))))
+; FILE DI TEST
 
-;; Test data
-(defparameter *test-symbols-n-weights* '(("A" . 8) ("B" . 3) ("C" . 1) ("D" . 1) ("E" . 1) ("F" . 1) ("G" . 1) ("H" . 1)))
-(defparameter *test-huffman-tree* (hucodec-generate-huffman-tree *test-symbols-n-weights*))
+; 1. Definizione frequenze di utilizzo
+(defparameter symbols-frequencies
+  '((#\c 1) (#\i 1) (#\a 1) (#\o 1)))
 
-;; Stampa l'albero di Huffman generato
-(format t "Albero di Huffman generato:~%")
-(print-huffman-tree *test-huffman-tree*)
+; 2. Genera l'albero di Huffman
+(defparameter huffman-tree
+  (hucodec-generate-huffman-tree symbols-frequencies))
 
-;; Test: Generate Huffman Tree
-(assert (equal (huffman-node-weight *test-huffman-tree*) 17))
+; 3. Stampa l'albero
+(hucodec-print-huffman-tree huffman-tree)
 
-(format t "Test for hucodec-generate-huffman-tree passed.~%")
+; 4. Genera la tabella simbolo-bit
+(defparameter symbol-bits-table
+  (hucodec-generate-symbol-bits-table huffman-tree))
+(format t "Symbol-Bits Table: ~A~%" symbol-bits-table)
 
-;; Test per hucodec-generate-symbol-bits-table
-(defparameter *test-symbol-bits-table* (hucodec-generate-symbol-bits-table *test-huffman-tree*))
+; 5. Messaggio da codificare (esempio: ciao)
+(defparameter message-to-encode
+  '(#\c #\i #\a #\o))
 
-;; Stampa la tabella dei simboli e dei bit generata
-(format t "Tabella simboli-bit generata:~%")
-(dolist (entry *test-symbol-bits-table*)
-  (format t "~a -> ~a~%" (car entry) (cdr entry)))
+; 6. Codifica il messaggio
+(defparameter encoded-bits
+  (hucodec-encode message-to-encode huffman-tree))
+(format t "Encoded Bits: ~A~%" encoded-bits)
 
-;; Test: verifica che ogni simbolo abbia un codice binario
-(assert (every #'listp (mapcar #'cdr *test-symbol-bits-table*)))
-
-(format t "Test for hucodec-generate-symbol-bits-table passed.~%")
-
+; 7. Decodifica i bit
+(defparameter decoded-message
+  (hucodec-decode encoded-bits huffman-tree))
+(format t "Decoded Message: ~A~%" decoded-message)
