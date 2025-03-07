@@ -67,18 +67,30 @@
             (cons first-node (insert-sorted node (rest nodes)))))))
 
 (defun hucodec-generate-symbol-bits-table (huffman-tree)
-  (generate-symbol-bits-table huffman-tree '()))
+  "Genera una tabella che associa ogni simbolo alla sua sequenza di bit nell'albero di Huffman."
+  (labels ((traverse (node prefix)
+             (cond ((leaf-p node)
+                    (list (cons (leaf-symbol node) prefix)))
+                   (t
+                    (append (traverse (node-left node) (append prefix '(0)))
+                            (traverse (node-right node) (append prefix '(1))))))))
+    (traverse huffman-tree '())))
 
-(defun generate-symbol-bits-table (node bits)
-  (if (eq (first node) 'leaf)
-      (list (list (second node) bits))
-      (let* ((left (second node))
-             (right (third node))
-             (left-bits (append bits '(0)))
-             (right-bits (append bits '(1)))
-             (left-table (generate-symbol-bits-table left left-bits))
-             (right-table (generate-symbol-bits-table right right-bits)))
-        (append left-table right-table))))
+(defun leaf-p (node)
+  "Verifica se il nodo è una foglia."
+  (and (consp node) (eq (car node) 'leaf)))
+
+(defun leaf-symbol (node)
+  "Ritorna il simbolo della foglia."
+  (cadr node))
+
+(defun node-left (node)
+  "Ritorna il figlio sinistro del nodo."
+  (cadr node))
+
+(defun node-right (node)
+  "Ritorna il figlio destro del nodo."
+  (caddr node))
 
 (defun hucodec-encode (symbols huffman-tree)
   (let ((symbol-bits-table (hucodec-generate-symbol-bits-table huffman-tree)))
@@ -179,3 +191,8 @@
         (let ((new-indent (+ indent 4)))
           (print-huffman-tree (second node) new-indent)
           (print-huffman-tree (third node) new-indent)))))
+
+
+
+
+
