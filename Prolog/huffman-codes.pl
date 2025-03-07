@@ -185,4 +185,3 @@ print_huffman_tree(node(Left, Right, W), Indent) :-
     print_huffman_tree(Left, NewIndent),
     print_huffman_tree(Right, NewIndent).
 
-
