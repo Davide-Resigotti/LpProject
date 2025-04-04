@@ -1,3 +1,4 @@
+(compile-file "huffman-codes.lisp")
 (load "huffman-codes.lisp")
 
 ; FILE DI TEST
