@@ -18,7 +18,7 @@ test(encode_file) :-
 
 test(decode) :-
     once(hucodec_generate_huffman_tree([sw('c', 1), sw('i', 1), sw('a', 1),
-     sw('o', 1)], Tree)),
+    sw('o', 1)], Tree)),
     once(hucodec_decode([1, 0, 1, 1, 0, 0, 0, 1], Tree, Message)),
     assertion(Message \= []).
 
