@@ -140,14 +140,18 @@
 
 (defun hucodec-print-huffman-tree (huffman-tree &optional (indent-level 0))
   ;; Stampa l'albero di Huffman in modo leggibile
-  (let ((indentation (make-string (* indent-level 2) :initial-element #\Space)))
+  (let ((indentation (make-string (* indent-level 2) 
+  :initial-element #\Space)))
     (if (leaf-p huffman-tree)
         (format t "~A- Leaf: Symbol=~A, Weight=~A~%"
-                indentation (leaf-symbol huffman-tree) (car (cdr huffman-tree)))
+                indentation (leaf-symbol huffman-tree) 
+                (car (cdr huffman-tree)))
         (progn
           (format t "~A- Node: Symbols=~A, Weight=~A~%"
                   indentation (car huffman-tree) (car (cdr huffman-tree)))
           (format t "~A  Left:~%" indentation)
-          (hucodec-print-huffman-tree (node-left huffman-tree) (1+ indent-level))
+          (hucodec-print-huffman-tree (node-left huffman-tree) 
+          (1+ indent-level))
           (format t "~A  Right:~%" indentation)
-          (hucodec-print-huffman-tree (node-right huffman-tree) (1+ indent-level))))))
+          (hucodec-print-huffman-tree (node-right huffman-tree) 
+          (1+ indent-level))))))
